@@ -196,8 +196,8 @@ class Credential:
 
 session_token_code_challenge = "tYLPO5PxpK-DTcAHJXugD7ztvAZQlo0DQQp3au5ztuM"
 session_token_code_verifier = "OwaTAOolhambwvY3RXSD-efxqdBEVNnQkc0bBJ7zaak"
-app_ver = '1.0.0'
-version = '1.0.0-5e2bcdfb'
+app_ver = '2.0.0'
+version = '2.0.0-1b57b7ac'
 
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
@@ -446,7 +446,7 @@ def get_coop_result(session, id: str) -> dict:
       'extensions': {
         'persistedQuery': {
           'version': 1,
-          'sha256Hash': 'f3799a033f0a7ad4b1b396f9a3bafb1e'
+          'sha256Hash': '3cc5f826a6646b85f3ae45db51bd0707'
         }
       }
     }
@@ -460,7 +460,7 @@ def get_coop_summary() -> dict:
       'extensions': {
         'persistedQuery': {
           'version': 1,
-          'sha256Hash': 'a5692cf290ffb26f14f0f7b6e5023b07'
+          'sha256Hash': '6ed02537e4a65bbb5e7f4f23092f6154'
         }
       }
     }
