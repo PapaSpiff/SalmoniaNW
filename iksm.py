@@ -351,9 +351,10 @@ def get_coop_summary() -> dict:
     )
     print(f"Available results {len(ids)}")
     for id in ids:
-        fname = f"results/{base64.b64decode(id).decode('utf-8')}.json"
+        did = base64.b64decode(id).decode('utf-8')
+        fname = f"results/{did}.json"
         with open(fname, mode="w") as f:
-            print(f"Downloading results id: {id}")
+            print(f"Downloading results id: {did}")
             result = get_coop_result(session, id)
-            _upload_coop_result(session, result)
             json.dump(result, f, indent=2)
+            _upload_coop_result(session, result)
