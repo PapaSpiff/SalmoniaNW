@@ -132,6 +132,7 @@ def _get_session_token(session: Session, url_scheme: str) -> SessionToken:
         logger.error(response)
         response = ErrorNSO.from_json(response)
         print(f"TypeError: {response.error_description}")
+        print(f"TypeError: {ErrorNSO}")
         sys.exit(1)
 
 
@@ -155,6 +156,7 @@ def _get_access_token(session: Session, session_token: str) -> AccessToken:
         logger.error(response)
         response = ErrorNSO.from_json(response)
         print(f"TypeError: {response.error_description}")
+        print(f"TypeError _get_access_token: {ErrorNSO}")
         sys.exit(1)
 
 
@@ -275,6 +277,7 @@ def request(session: Session, parameters: dict) -> dict:
         if datetime.datetime.now() >= datetime.datetime.fromisoformat(
             credential.expires_in
         ):
+            print(f"Expired cookie: credential")
             renew_cookie(credential.session_token)
             session = Session()
             with open("credentials.json", mode="r") as newf:
@@ -302,8 +305,14 @@ def _upload_coop_result(session: Session, result: dict):
     response = session.post(url, json=body)
     if response.status_code == 201:
         return
+    elif response.status_code == 500:
+        print(f"Error: {response.status_code}")
+        return
     else:
-        raise HttpResponseBadRequest
+        print(f"Error: {response.status_code}")
+        print(f"Ertxt: {response.text}")
+#        raise HttpResponseBadRequest
+        return
 
 def get_coop_result(session, id: str) -> dict:
     parameters = {
@@ -317,6 +326,22 @@ def get_coop_result(session, id: str) -> dict:
     }
     return request(session, parameters)
 
+def get_schedule() -> dict:
+    session = Session()
+    url = "https://api.lp1.av5ja.srv.nintendo.net/api/graphql"
+    parameters = {
+        "variables": {},
+        "extensions": {
+            "persistedQuery": {
+                "version": 1,
+                "sha256Hash": SHA256Hash.StageScheduleQuery.value,
+            }
+        },
+    }
+    response = request(session, parameters)
+    with open("calendar.json", mode="w") as f:
+        json.dump(response, f, indent=2)
+    return response["data"]
 
 def get_coop_summary() -> dict:
     session = Session()
