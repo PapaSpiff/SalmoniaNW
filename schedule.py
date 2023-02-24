@@ -37,11 +37,8 @@ def to_srcal(schedule):
 
     event = Event()
     event.add('location', vText(location))
-    event.add('summary', vText("Salmon Run NW: " + location))
-    w = []
-    for weapon in weapons:
-      w.append(weapon['name'])
-    event.add('description', vText("Weapon set: " + ", ".join(w)))
+    event.add('summary', vText("SRNW: " + location))
+    event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons))))
     # we are cheating a bit for the creation time
     event.add('dtstamp', datetime.fromisoformat(dstart))
     event.add('dtstart', datetime.fromisoformat(dstart))
