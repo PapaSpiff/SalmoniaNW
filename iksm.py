@@ -16,7 +16,7 @@ from hash import *
 
 session_token_code_challenge = "tYLPO5PxpK-DTcAHJXugD7ztvAZQlo0DQQp3au5ztuM"
 session_token_code_verifier = "OwaTAOolhambwvY3RXSD-efxqdBEVNnQkc0bBJ7zaak"
-app_ver = '2.0.0'
+app_ver = '3.0.0'
 
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
@@ -277,7 +277,6 @@ def request(session: Session, parameters: dict) -> dict:
         if datetime.datetime.now() >= datetime.datetime.fromisoformat(
             credential.expires_in
         ):
-            print(f"Expired cookie: credential")
             renew_cookie(credential.session_token)
             session = Session()
             with open("credentials.json", mode="r") as newf:
