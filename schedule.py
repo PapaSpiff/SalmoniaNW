@@ -23,12 +23,16 @@ def sign_in():
     except KeyError:
       pass
 
-def to_srcal(schedule):
+def to_srcal(coop_infos):
   cal = Calendar()
   cal.add('prodid', '-//Salmon Run Rotation//salmon-stats.ink//')
   cal.add('version', '2.0')
 
-  for entry in schedule:
+  grizz = vCalAddress('MAILTO:bear03@salmon-stats.ink')
+  grizz.params['cn'] = vText('Mr. Grizz')
+  grizz.params['role'] = vText('CHAIR')
+
+  for entry in coop_infos['regularSchedules']['nodes']:
     dstart      = entry['startTime']
     dend        = entry['endTime']
     location    = entry['setting']['coopStage']['name']
@@ -36,6 +40,7 @@ def to_srcal(schedule):
     weapons     = entry['setting']['weapons']
 
     event = Event()
+    event.add('organizer', grizz)
     event.add('location', vText(location))
     event.add('summary', vText("SRNW: " + location))
     event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons))))
@@ -46,15 +51,33 @@ def to_srcal(schedule):
     event.add('uid', dstart + "@" + urlsafe_b64decode(location_id).decode(encoding='utf-8'))
     cal.add_component(event)
 
+  for entry in coop_infos['bigRunSchedules']['nodes']: 
+    dstart      = entry['startTime']
+    dend        = entry['endTime']
+    location    = entry['setting']['coopStage']['name']
+    location_id = entry['setting']['coopStage']['id']
+    weapons     = entry['setting']['weapons']
+
+    event = Event()
+    event.add('organizer', grizz)
+    event.add('location', vText(location))
+    event.add('summary', vText("BigRun: " + location))
+    event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons))))
+    # we are cheating a bit for the creation time
+    event.add('dtstamp', datetime.fromisoformat(dstart))
+    event.add('dtstart', datetime.fromisoformat(dstart))
+    event.add('dtend', datetime.fromisoformat(dend))
+    event.add('uid', dstart + "@" + urlsafe_b64decode(location_id).decode(encoding='utf-8'))
+    cal.add_component(event)
   with open("schedule.ics", mode="wb") as f:
     f.write(cal.to_ical())
+    
 
 
 if __name__=='__main__':
   try:
     full_schedule = iksm.get_schedule()
-    sr_schedule = full_schedule['coopGroupingSchedule']['regularSchedules']['nodes']
-    to_srcal(sr_schedule)
+    to_srcal(full_schedule['coopGroupingSchedule'])
 
 
   except FileNotFoundError:
