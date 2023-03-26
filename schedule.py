@@ -4,6 +4,9 @@ import os, re, sys
 from icalendar import Calendar, Event, vCalAddress, vText
 from datetime import datetime
 from base64 import urlsafe_b64decode
+from os.path import exists
+import urllib.request
+import gzip
 
 def sign_in():
   # 認証用のURL取得
@@ -73,12 +76,68 @@ def to_srcal(coop_infos):
     f.write(cal.to_ical())
     
 
+def load_images(coop_infos):
+  if not os.path.isdir("images"):
+    os.mkdir("images")
+    os.mkdir("images/coop_weapon")
+    os.mkdir("images/coop_stage")
+    os.mkdir("images/coop_stage_thb")
+
+  for entry in coop_infos['regularSchedules']['nodes']:
+    thumbnailstageurl = entry['setting']['coopStage']['thumbnailImage']['url']
+    thumbnailsavpath = f"images/coop_stage_thb/{thumbnailstageurl.split('/')[-1].split('?')[0]}"
+    if not exists(thumbnailsavpath):
+      print(f"Fetching stage {thumbnailsavpath}")
+      urllib.request.urlretrieve(thumbnailstageurl, thumbnailsavpath)
+
+    imagestageurl = entry['setting']['coopStage']['image']['url']
+    imagesavpath = f"images/coop_stage/{imagestageurl.split('/')[-1].split('?')[0]}"
+    if not exists(imagesavpath):
+      print(f"Fetching stage thumbnail {imagesavpath}")
+      urllib.request.urlretrieve(imagestageurl, imagesavpath)
+
+    for weapon in entry['setting']['weapons']:
+      weaponurl = weapon['image']['url']
+      weaponsavpath = f"images/coop_weapon/{weaponurl.split('/')[-1].split('?')[0]}"
+      if not exists(weaponsavpath):
+        print(f"Fetching weapon {weapon['name']} {weaponsavpath}")
+        urllib.request.urlretrieve(weaponurl, weaponsavpath)
+
+def update_complete_schedule(coop_infos):
+  fname = "complete_schedule.json.gz"
+  if os.path.isfile(fname):
+    with gzip.open(fname, "rt", encoding='utf-8') as f:
+      complete_schedule = json.load(f)
+  else:
+    complete_schedule = { "regularEvents": [], "specialEvents" : []}
+
+  for entry in coop_infos['regularSchedules']['nodes']:
+    # rewrite the URLs in the entry
+    url = entry['setting']['coopStage']['image']['url'].split('/')[-1].split('?')[0]
+    entry['setting']['coopStage']['image']['url'] = url
+    url = entry['setting']['coopStage']['thumbnailImage']['url'].split('/')[-1].split('?')[0]
+    entry['setting']['coopStage']['thumbnailImage']['url'] = url
+    for weapon in entry['setting']['weapons']:
+      weaponurl = weapon['image']['url'].split('/')[-1].split('?')[0]
+      weapon['image']['url'] = weaponurl
+
+    if entry not in complete_schedule['regularEvents']:
+      # TODO url filtering like above
+      complete_schedule['regularEvents'].append(entry)
+
+  for entry in coop_infos['bigRunSchedules']['nodes']:
+    complete_schedule['specialEvents'].append(entry)
+
+  with gzip.open(fname, "wt", compresslevel=9, encoding='utf-8') as f:
+    json.dump(complete_schedule, f)
 
 if __name__=='__main__':
   try:
     full_schedule = iksm.get_schedule()
     to_srcal(full_schedule['coopGroupingSchedule'])
 
-
   except FileNotFoundError:
     sign_in()
+
+  load_images(full_schedule['coopGroupingSchedule'])
+  update_complete_schedule(full_schedule['coopGroupingSchedule'])
