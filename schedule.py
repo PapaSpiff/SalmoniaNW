@@ -1,7 +1,7 @@
 import iksm
 import json
 import os, re, sys
-from icalendar import Calendar, Event, vCalAddress, vText
+from icalendar import Calendar, Event, vCalAddress, vText, vUri
 from datetime import datetime
 from base64 import urlsafe_b64decode
 from os.path import exists
@@ -26,6 +26,21 @@ def sign_in():
     except KeyError:
       pass
 
+stageToURI = {
+  "CoopStage-1" : "be584c7c7f547b8cbac318617f646680541f88071bc71db73cd461eb3ea6326e_0.png", # Spawning Grounds
+  "CoopStage-2" : "3418d2d89ef84288c78915b9acb63b4ad48df7bfcb48c27d6597920787e147ec_0.png", # Sockeye Station
+  "CoopStage-3" : "",
+  "CoopStage-4" : "",
+  "CoopStage-5" : "",
+  "CoopStage-6" : "1a29476c1ab5fdbc813e2df99cd290ce56dfe29755b97f671a7250e5f77f4961_0.png", # Marooner Bay
+  "CoopStage-7" : "f1e4df4cff1dc5e0acc66a9654fecf949224f7e4f6bd36305d4600ac3fa3db7b_0.png" # Gone Fission Hydroplant
+}
+
+def stage_to_uri(stagename):
+  if stagename in stageToURI:
+    return "https://salmon-stats.ink/images/coop_stage/" + stageToURI[stagename]
+  return ""
+
 def to_srcal(coop_infos):
   cal = Calendar()
   cal.add('prodid', '-//Salmon Run Rotation//salmon-stats.ink//')
@@ -41,11 +56,18 @@ def to_srcal(coop_infos):
     location    = entry['setting']['coopStage']['name']
     location_id = entry['setting']['coopStage']['id']
     weapons     = entry['setting']['weapons']
+    decoded_location_id = urlsafe_b64decode(location_id).decode(encoding='utf-8')
+
+    stage = vCalAddress(vUri(stage_to_uri(decoded_location_id)))
+    stage.params['fmttype'] = vText('image/png')
+    stage.params['display'] = vText('FULLSIZE')
+    stage.params['value'] = vText('URI')
 
     event = Event()
     event.add('organizer', grizz)
     event.add('location', vText(location))
     event.add('summary', vText("SRNW: " + location))
+    event.add('image', stage)
     event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons))))
     # we are cheating a bit for the creation time
     event.add('dtstamp', datetime.fromisoformat(dstart))
@@ -60,6 +82,7 @@ def to_srcal(coop_infos):
     location    = entry['setting']['coopStage']['name']
     location_id = entry['setting']['coopStage']['id']
     weapons     = entry['setting']['weapons']
+    decoded_location_id = urlsafe_b64decode(location_id).decode(encoding='utf-8')
 
     event = Event()
     event.add('organizer', grizz)
@@ -70,7 +93,7 @@ def to_srcal(coop_infos):
     event.add('dtstamp', datetime.fromisoformat(dstart))
     event.add('dtstart', datetime.fromisoformat(dstart))
     event.add('dtend', datetime.fromisoformat(dend))
-    event.add('uid', dstart + "@" + urlsafe_b64decode(location_id).decode(encoding='utf-8'))
+    event.add('uid', dstart + "@" + decoded_location_id)
     cal.add_component(event)
   with open("schedule.ics", mode="wb") as f:
     f.write(cal.to_ical())
