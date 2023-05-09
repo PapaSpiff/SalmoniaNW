@@ -50,7 +50,7 @@ def to_srcal(coop_infos):
   grizz.params['cn'] = vText('Mr. Grizz')
   grizz.params['role'] = vText('CHAIR')
 
-  for entry in coop_infos['regularSchedules']['nodes']:
+  for entry in sorted(coop_infos['regularSchedules']['nodes'], key=lambda x:x['startTime']):
     dstart      = entry['startTime']
     dend        = entry['endTime']
     location    = entry['setting']['coopStage']['name']
@@ -76,7 +76,7 @@ def to_srcal(coop_infos):
     event.add('uid', dstart + "@" + urlsafe_b64decode(location_id).decode(encoding='utf-8'))
     cal.add_component(event)
 
-  for entry in coop_infos['bigRunSchedules']['nodes']: 
+  for entry in sorted(coop_infos['bigRunSchedules']['nodes'], key=lambda x:x['startTime']): 
     dstart      = entry['startTime']
     dend        = entry['endTime']
     location    = entry['setting']['coopStage']['name']
@@ -134,7 +134,7 @@ def update_complete_schedule(coop_infos):
   else:
     complete_schedule = { "regularEvents": [], "specialEvents" : []}
 
-  for entry in coop_infos['regularSchedules']['nodes']:
+  for entry in sorted(coop_infos['regularSchedules']['nodes'], key=lambda x:x['startTime']):
     # rewrite the URLs in the entry
     url = entry['setting']['coopStage']['image']['url'].split('/')[-1].split('?')[0]
     entry['setting']['coopStage']['image']['url'] = url
@@ -148,7 +148,7 @@ def update_complete_schedule(coop_infos):
       # TODO url filtering like above
       complete_schedule['regularEvents'].append(entry)
 
-  for entry in coop_infos['bigRunSchedules']['nodes']:
+  for entry in sorted(coop_infos['bigRunSchedules']['nodes'], key=lambda x:x['startTime']):
     complete_schedule['specialEvents'].append(entry)
 
   with gzip.open(fname, "wt", compresslevel=9, encoding='utf-8') as f:
