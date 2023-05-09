@@ -8,7 +8,7 @@ from os.path import exists
 import urllib.request
 import gzip
 
-def sign_in():
+def sign_in() -> None:
   # 認証用のURL取得
   oauthURL = iksm.get_session_token_code()
   print("Navigate to this URL in your browser:")
@@ -36,12 +36,25 @@ stageToURI = {
   "CoopStage-7" : "f1e4df4cff1dc5e0acc66a9654fecf949224f7e4f6bd36305d4600ac3fa3db7b_0.png" # Gone Fission Hydroplant
 }
 
-def stage_to_uri(stagename):
+def stage_to_uri(stagename:str) -> str:
   if stagename in stageToURI:
     return "https://salmon-stats.ink/images/coop_stage/" + stageToURI[stagename]
   return ""
 
-def to_srcal(coop_infos):
+# yes, we have duplication of efforts here, but we only have 5 items
+def srjson_to_arrays(coop_infos: dict) -> dict:
+  sr_schedule = { "regularEvents": [], "specialEvents" : []}
+
+  for entry in sorted(coop_infos['regularSchedules']['nodes'], key=lambda x:x['startTime']):
+    sr_schedule['regularEvents'].append(entry)
+
+  for entry in sorted(coop_infos['bigRunSchedules']['nodes'], key=lambda x:x['startTime']):
+    sr_schedule['specialEvents'].append(entry)
+
+  return sr_schedule
+
+
+def to_srcal(sorted_schedule:dict, outfile:str="schedule.ics") -> None:
   cal = Calendar()
   cal.add('prodid', '-//Salmon Run Rotation//salmon-stats.ink//')
   cal.add('version', '2.0')
@@ -50,7 +63,7 @@ def to_srcal(coop_infos):
   grizz.params['cn'] = vText('Mr. Grizz')
   grizz.params['role'] = vText('CHAIR')
 
-  for entry in sorted(coop_infos['regularSchedules']['nodes'], key=lambda x:x['startTime']):
+  for entry in sorted_schedule['regularEvents']:
     dstart      = entry['startTime']
     dend        = entry['endTime']
     location    = entry['setting']['coopStage']['name']
@@ -76,7 +89,7 @@ def to_srcal(coop_infos):
     event.add('uid', dstart + "@" + urlsafe_b64decode(location_id).decode(encoding='utf-8'))
     cal.add_component(event)
 
-  for entry in sorted(coop_infos['bigRunSchedules']['nodes'], key=lambda x:x['startTime']): 
+  for entry in sorted_schedule['specialEvents']:
     dstart      = entry['startTime']
     dend        = entry['endTime']
     location    = entry['setting']['coopStage']['name']
@@ -95,11 +108,11 @@ def to_srcal(coop_infos):
     event.add('dtend', datetime.fromisoformat(dend))
     event.add('uid', dstart + "@" + decoded_location_id)
     cal.add_component(event)
-  with open("schedule.ics", mode="wb") as f:
+  with open(outfile, mode="wb") as f:
     f.write(cal.to_ical())
     
 
-def load_images(coop_infos):
+def load_images(coop_infos:dict) -> None:
   if not os.path.isdir("images"):
     os.mkdir("images")
     os.mkdir("images/coop_weapon")
@@ -126,7 +139,7 @@ def load_images(coop_infos):
         print(f"Fetching weapon {weapon['name']} {weaponsavpath}")
         urllib.request.urlretrieve(weaponurl, weaponsavpath)
 
-def update_complete_schedule(coop_infos):
+def update_complete_schedule(coop_infos:dict) -> None:
   fname = "complete_schedule.json.gz"
   if os.path.isfile(fname):
     with gzip.open(fname, "rt", encoding='utf-8') as f:
@@ -151,13 +164,16 @@ def update_complete_schedule(coop_infos):
   for entry in sorted(coop_infos['bigRunSchedules']['nodes'], key=lambda x:x['startTime']):
     complete_schedule['specialEvents'].append(entry)
 
+  to_srcal(complete_schedule, outfile="complete_schedule.ics")
+
   with gzip.open(fname, "wt", compresslevel=9, encoding='utf-8') as f:
     json.dump(complete_schedule, f)
 
 if __name__=='__main__':
   try:
     full_schedule = iksm.get_schedule()
-    to_srcal(full_schedule['coopGroupingSchedule'])
+    sorted_schedule = srjson_to_arrays(full_schedule['coopGroupingSchedule'])
+    to_srcal(sorted_schedule)
 
   except FileNotFoundError:
     sign_in()
