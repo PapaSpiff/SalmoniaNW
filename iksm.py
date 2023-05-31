@@ -16,7 +16,7 @@ from hash import *
 
 session_token_code_challenge = "tYLPO5PxpK-DTcAHJXugD7ztvAZQlo0DQQp3au5ztuM"
 session_token_code_verifier = "OwaTAOolhambwvY3RXSD-efxqdBEVNnQkc0bBJ7zaak"
-app_ver = '3.0.0'
+app_ver = '4.0.0'
 
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
