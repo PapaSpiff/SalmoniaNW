@@ -34,6 +34,7 @@ stageToURI = {
   "CoopStage-5" : "",
   "CoopStage-6" : "1a29476c1ab5fdbc813e2df99cd290ce56dfe29755b97f671a7250e5f77f4961_0.png", # Marooner Bay
   "CoopStage-7" : "f1e4df4cff1dc5e0acc66a9654fecf949224f7e4f6bd36305d4600ac3fa3db7b_0.png" # Gone Fission Hydroplant
+  "CoopStage-8" : "0e05d4caa34089a447535708370286f4ee6068661359b4d7cf6c319863424f84_0.png" # Jammin' Salmon Junction
 }
 
 def stage_to_uri(stagename:str) -> str:
