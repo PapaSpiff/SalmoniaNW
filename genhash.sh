@@ -12,7 +12,7 @@ from enum import Enum
 class SHA256Hash(Enum):
 EOF
 
-curl -s $HASHREF | cut -f5,8 -d ' ' | sed s,.\./,\ =\ \", | sed 's/\.js../\"/' | sed 's/^/        /' >> $FNAME
+curl -s $HASHREF | cut -f5,8 -d ' ' | sed s,.\./,\ =\ \", | sed 's/\.js../\"/' | sed 's,queries/,,' |  sed 's/^/        /' >> $FNAME
 
 cat >> $FNAME <<EOF
 
