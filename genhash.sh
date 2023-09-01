@@ -1,7 +1,8 @@
 #!/bin/sh
 
 FNAME=hash.py
-HASHREF=https://raw.githubusercontent.com/nintendoapis/splatnet3-types/main/src/generated/latest.ts 
+#HASHREF=https://raw.githubusercontent.com/nintendoapis/splatnet3-types/main/src/generated/latest.ts
+HASHREF=https://gitlab.fancy.org.uk/samuel/splatnet3-types/-/raw/main/src/generated/latest.ts
 
 cat > $FNAME <<EOF
 from enum import Enum
