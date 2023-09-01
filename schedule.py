@@ -30,7 +30,7 @@ stageToURI = {
   "CoopStage-1" : "be584c7c7f547b8cbac318617f646680541f88071bc71db73cd461eb3ea6326e_0.png", # Spawning Grounds
   "CoopStage-2" : "3418d2d89ef84288c78915b9acb63b4ad48df7bfcb48c27d6597920787e147ec_0.png", # Sockeye Station
   "CoopStage-3" : "",
-  "CoopStage-4" : "",
+  "CoopStage-4" : "630d89698e3e260ef12cb2a32e1cb2c4c83c0e58fc882762da1fa2cea19a5260_0.png", # Salmonid Smokeyard
   "CoopStage-5" : "",
   "CoopStage-6" : "1a29476c1ab5fdbc813e2df99cd290ce56dfe29755b97f671a7250e5f77f4961_0.png", # Marooner Bay
   "CoopStage-7" : "f1e4df4cff1dc5e0acc66a9654fecf949224f7e4f6bd36305d4600ac3fa3db7b_0.png", # Gone Fission Hydroplant
