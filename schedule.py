@@ -163,7 +163,8 @@ def update_complete_schedule(coop_infos:dict) -> None:
       complete_schedule['regularEvents'].append(entry)
 
   for entry in sorted(coop_infos['bigRunSchedules']['nodes'], key=lambda x:x['startTime']):
-    complete_schedule['specialEvents'].append(entry)
+    if entry not in complete_schedule['specialEvents']:
+      complete_schedule['specialEvents'].append(entry)
 
   to_srcal(complete_schedule, outfile="complete_schedule.ics")
 
