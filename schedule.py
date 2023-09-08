@@ -1,3 +1,5 @@
+#!/usr/bin/env python 
+
 import iksm
 import json
 import os, re, sys
