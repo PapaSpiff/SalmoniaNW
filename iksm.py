@@ -16,7 +16,7 @@ from hash import *
 
 session_token_code_challenge = "tYLPO5PxpK-DTcAHJXugD7ztvAZQlo0DQQp3au5ztuM"
 session_token_code_verifier = "OwaTAOolhambwvY3RXSD-efxqdBEVNnQkc0bBJ7zaak"
-app_ver = '4.0.0'
+app_ver = '2.10.0'
 
 logger = getLogger(__name__)
 logger.setLevel(DEBUG)
@@ -42,7 +42,7 @@ def _get_react_version() -> str:
     response.encoding = response.apparent_encoding
     
     version =  re.search(
-        '`(\d{1}\.\d{1}\.\d{1})-', response.text
+        '`(\d{1}\.\d{1,2}\.\d{1,2})-', response.text
     ).group(1)
     revision = re.search(
         'REACT_APP_REVISION:"([a-f0-9]{8})', response.text
@@ -298,6 +298,7 @@ def request(session: Session, parameters: dict) -> dict:
 
 def _upload_coop_result(session: Session, result: dict):
     url = "https://api.splatnet3.com/v1/results"
+    return
     body = {
         "results": [result]
     }
