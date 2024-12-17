@@ -105,7 +105,10 @@ def to_srcal(sorted_schedule:dict, outfile:str="schedule.ics") -> None:
     event.add('organizer', grizz)
     event.add('location', vText(location))
     event.add('summary', vText("BigRun: " + location))
-    event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons))))
+    if 'boss' in entry['setting']:
+      event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons)) +"; Boss: "+entry['setting']['boss']['name']))
+    else:
+      event.add('description', vText("Weapon set: " + ", ".join(map(lambda w:w['name'], weapons))))
     # we are cheating a bit for the creation time
     event.add('dtstamp', datetime.fromisoformat(dstart))
     event.add('dtstart', datetime.fromisoformat(dstart))
